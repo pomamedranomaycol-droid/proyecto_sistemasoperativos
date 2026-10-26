@@ -1,12 +1,228 @@
-<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="theme-color" content="#050c17"><title>Servidor de archivos Samba | Proyecto CachyOS</title><link rel="stylesheet" href="styles.css"></head><body><header class="topbar"><nav class="nav"><a class="brand" href="index.html"><span class="penguin">🐧</span><span><strong>Servidor Linux</strong><small>Proyecto SO · CachyOS</small></span></a><div class="navlinks"><a class="" href="index.html">Inicio</a><a class="" href="web.html">Servidor web</a><a class="active" href="archivos.html">Servidor de archivos</a><a class="" href="bd.html">Base de datos</a><a class="" href="caso-restaurante.html">Caso restaurante</a><a class="" href="integrantes.html">Integrantes</a></div></nav></header><main class="wrap">
-<section class="hero"><div><span class="tag">SERVICIO 02 · SMB</span><h1>Servidor de archivos <span class="accent">Samba</span></h1><p>Samba permite compartir una carpeta entre dispositivos. Se configuró el recurso <code>Compartido</code> y se comprobó que el celular podía entrar mediante X-plore usando credenciales de usuario.</p></div><aside class="serverbox"><div class="servericon">📁</div><h2>Recurso Compartido</h2><div class="info"><span>Ruta local</span><strong>/srv/samba/compartido</strong><span>Protocolo</span><strong>SMB</strong><span>Puerto</span><strong>445/tcp</strong><span>Cliente</span><strong>X-plore / Android</strong></div></aside></section>
-<section class="grid2"><article class="panel"><h2>⚙️ Instalación y validación</h2><pre>sudo pacman -S samba
-sudo testparm
-sudo systemctl enable --now smb
-systemctl status smb --no-pager
-smbclient -L localhost -N</pre><p>El recurso <code>Compartido</code> apareció en la lista de recursos compartidos. Se habilitó el acceso SMB en el firewall desde la subred local.</p></article><article class="panel"><h2>👥 Gestión de usuarios</h2><p>Se configuraron usuarios Samba para que los clientes se autentiquen con una cuenta individual en lugar de depender del acceso anónimo.</p><pre>sudo smbpasswd -a NOMBRE_USUARIO
-sudo testparm
-sudo systemctl restart smb</pre><p>En la configuración del recurso, <code>valid users</code> debe incluir los usuarios autorizados. Los permisos de Samba y los permisos del sistema de archivos deben permitir la operación solicitada.</p></article></section>
-<h2 class="section-title">Prueba desde Android</h2><section class="grid3"><article class="card"><div class="icon">1️⃣</div><h2>Conectar a la red</h2><p>El celular y el servidor deben estar en la misma Wi‑Fi o tener una ruta de red permitida.</p></article><article class="card"><div class="icon">2️⃣</div><h2>Agregar servidor</h2><p>En X-plore se usó la IP del servidor, el recurso <code>Compartido</code> y las credenciales de Samba.</p></article><article class="card"><div class="icon">3️⃣</div><h2>Leer y guardar</h2><p>Se comprobó el acceso al recurso. La escritura depende de que los permisos de Linux y Samba coincidan.</p></article></section>
-<div class="callout"><strong>Seguridad:</strong> el puerto SMB debe limitarse a la red local. No publiques el puerto 445 en Internet ni compartas contraseñas entre usuarios.</div>
-</main><footer class="footer">Proyecto académico de Sistemas Operativos · CachyOS Linux · Laboratorio de red local</footer></body></html>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#050c17">
+  <title>Archivos compartidos | Proyecto CachyOS</title>
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    .cloud-layout{display:grid;grid-template-columns:minmax(0,1fr) minmax(280px,.8fr);gap:22px;align-items:start}
+    .cloud-panel{background:rgba(12,24,42,.88);border:1px solid rgba(148,163,184,.2);border-radius:18px;padding:24px;box-shadow:0 18px 45px rgba(0,0,0,.15)}
+    .cloud-panel h2{margin-top:0}
+    .field{display:flex;flex-direction:column;gap:7px;margin:14px 0}
+    .field label{color:#cbd5e1;font-size:.92rem}
+    .field input{width:100%;box-sizing:border-box;padding:12px 13px;border-radius:10px;border:1px solid #334155;background:#07111f;color:#f8fafc;font:inherit}
+    .cloud-btn{border:0;border-radius:10px;padding:11px 15px;background:#2563eb;color:#fff;font-weight:650;cursor:pointer;font:inherit}
+    .cloud-btn.secondary{background:#1e293b;border:1px solid #475569}
+    .cloud-btn.danger{background:#7f1d1d}
+    .cloud-btn:disabled{opacity:.55;cursor:not-allowed}
+    .button-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
+    .notice{border-radius:10px;padding:12px 14px;background:rgba(30,41,59,.7);color:#cbd5e1;font-size:.9rem;line-height:1.5;margin:12px 0}
+    .notice.error{background:rgba(127,29,29,.25);color:#fecaca}
+    .notice.success{background:rgba(20,83,45,.3);color:#bbf7d0}
+    .file-toolbar{display:flex;gap:12px;justify-content:space-between;align-items:center;flex-wrap:wrap}
+    .file-list{display:grid;gap:10px;margin-top:18px}
+    .file-row{display:flex;gap:12px;align-items:center;padding:13px;border:1px solid rgba(148,163,184,.18);border-radius:12px;background:rgba(15,23,42,.65)}
+    .file-icon{font-size:1.5rem}
+    .file-info{min-width:0;flex:1}
+    .file-info strong{display:block;overflow-wrap:anywhere;color:#e2e8f0}
+    .file-info small{color:#94a3b8}
+    .file-actions{display:flex;gap:7px;flex-wrap:wrap}
+    .small-note{font-size:.84rem;color:#94a3b8;line-height:1.55}
+    .hidden{display:none!important}
+    @media(max-width:800px){.cloud-layout{grid-template-columns:1fr}.cloud-panel{padding:18px}.file-row{align-items:flex-start;flex-wrap:wrap}.file-actions{width:100%}}
+  </style>
+</head>
+<body>
+<header class="topbar"><nav class="nav">
+  <a class="brand" href="index.html"><span class="penguin">🐧</span><span><strong>Servidor Linux</strong><small>Proyecto SO · CachyOS</small></span></a>
+  <div class="navlinks">
+    <a href="index.html">Inicio</a><a href="web.html">Servidor web</a><a class="active" href="archivos.html">Archivos compartidos</a><a href="bd.html">Base de datos</a><a href="integrantes.html">Integrantes</a>
+  </div>
+</nav></header>
+
+<main class="wrap">
+  <section class="hero" style="padding-bottom:22px">
+    <div>
+      <span class="tag">ALMACENAMIENTO EN LA NUBE</span>
+      <h1>Archivos <span class="accent">compartidos</span></h1>
+      <p>Inicia sesión para subir, consultar, descargar o eliminar archivos del proyecto. El almacenamiento funciona en la nube, sin depender de que la laptop esté encendida.</p>
+    </div>
+    <aside class="serverbox"><div class="servericon">☁️</div><h2>Área del equipo</h2><div class="info"><span>Acceso</span><strong>Solo usuarios autenticados</strong><span>Almacenamiento</span><strong>Supabase Storage</strong><span>Bucket</span><strong>archivos-compartidos</strong></div></aside>
+  </section>
+
+  <div class="notice">Para iniciar sesión, usa el correo y la contraseña de la cuenta que creó el administrador. No uses la contraseña de la base de datos de Supabase.</div>
+
+  <section class="cloud-layout">
+    <article class="cloud-panel" id="authPanel">
+      <h2>🔐 Iniciar sesión</h2>
+      <p class="small-note">Las cuentas se crean desde el panel de administración de Supabase.</p>
+      <form id="loginForm">
+        <div class="field"><label for="email">Correo electrónico</label><input id="email" type="email" autocomplete="username" required placeholder="integrante@correo.com"></div>
+        <div class="field"><label for="password">Contraseña</label><input id="password" type="password" autocomplete="current-password" required placeholder="Tu contraseña"></div>
+        <div class="button-row"><button class="cloud-btn" type="submit">Iniciar sesión</button><button class="cloud-btn secondary" type="button" id="logoutBtn" disabled>Cerrar sesión</button></div>
+      </form>
+      <div id="authStatus" class="notice" role="status">Configura primero la URL y la clave pública de Supabase en este archivo.</div>
+    </article>
+
+    <article class="cloud-panel">
+      <h2>📤 Subir archivos</h2>
+      <p class="small-note">Selecciona un archivo y pulsa “Subir”. No cierres la página hasta que termine la carga.</p>
+      <form id="uploadForm">
+        <div class="field"><label for="fileInput">Archivo</label><input id="fileInput" type="file" required></div>
+        <button class="cloud-btn" id="uploadBtn" type="submit" disabled>Subir archivo</button>
+      </form>
+      <div id="uploadStatus" class="notice">Inicia sesión para habilitar la subida.</div>
+      <p class="small-note">No subas contraseñas, documentos personales sensibles ni archivos que no tengas permiso para compartir.</p>
+    </article>
+  </section>
+
+  <section class="cloud-panel" style="margin-top:22px">
+    <div class="file-toolbar"><div><h2 style="margin-bottom:4px">📁 Biblioteca del equipo</h2><p class="small-note" style="margin:0">Los archivos aparecen aquí después de iniciar sesión.</p></div><button class="cloud-btn secondary" id="refreshBtn" disabled>Actualizar lista</button></div>
+    <div id="fileStatus" class="notice">Inicia sesión para ver los archivos compartidos.</div>
+    <div id="fileList" class="file-list"></div>
+  </section>
+
+  <section class="panel" style="margin-top:22px">
+    <h2>ℹ️ Nota de configuración</h2>
+    <p>Esta página necesita la URL y la clave pública de tu proyecto Supabase. La clave pública se puede usar en el navegador, pero el bucket debe permanecer privado y las políticas de Storage deben limitar el acceso a <code>authenticated</code>.</p>
+    <p class="small-note">Por seguridad, no coloques nunca una clave <code>sb_secret_...</code> ni una clave <code>service_role</code> en este HTML.</p>
+  </section>
+</main>
+<footer class="footer">Proyecto académico de Sistemas Operativos · CachyOS Linux</footer>
+
+<!-- Supabase JS v2 desde CDN. GitHub Pages no requiere instalación de paquetes. -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+(() => {
+  // Pega aquí los valores de Project URL y Publishable key desde Supabase.
+  const SUPABASE_URL = "PEGA_AQUI_TU_PROJECT_URL";
+  const SUPABASE_PUBLISHABLE_KEY = "PEGA_AQUI_TU_SB_PUBLISHABLE_KEY";
+  const BUCKET = "archivos-compartidos";
+
+  const $ = (id) => document.getElementById(id);
+  const authStatus = $("authStatus"), uploadStatus = $("uploadStatus"), fileStatus = $("fileStatus");
+  const fileList = $("fileList"), loginForm = $("loginForm"), uploadForm = $("uploadForm");
+  let supabase = null;
+  let currentUser = null;
+
+  function message(el, text, type="") {
+    el.textContent = text;
+    el.className = "notice" + (type ? " " + type : "");
+  }
+  function configured() {
+    return SUPABASE_URL.startsWith("https://") &&
+      !SUPABASE_URL.includes("PEGA_AQUI") &&
+      SUPABASE_PUBLISHABLE_KEY.startsWith("sb_publishable_") &&
+      !SUPABASE_PUBLISHABLE_KEY.includes("PEGA_AQUI");
+  }
+  function setLoggedIn(user) {
+    currentUser = user || null;
+    const active = !!currentUser;
+    $("uploadBtn").disabled = !active;
+    $("refreshBtn").disabled = !active;
+    $("logoutBtn").disabled = !active;
+    $("email").disabled = active;
+    $("password").disabled = active;
+    if (active) {
+      message(authStatus, "Sesión iniciada: " + currentUser.email, "success");
+      message(uploadStatus, "Ya puedes subir archivos.");
+      loadFiles();
+    } else {
+      message(authStatus, configured() ? "Inicia sesión con tu cuenta de integrante." : "Falta configurar la URL y la clave pública de Supabase en este archivo.", configured() ? "" : "error");
+      message(uploadStatus, "Inicia sesión para habilitar la subida.");
+      message(fileStatus, "Inicia sesión para ver los archivos compartidos.");
+      fileList.replaceChildren();
+    }
+  }
+
+  if (!configured()) {
+    message(authStatus, "Falta configurar SUPABASE_URL y SUPABASE_PUBLISHABLE_KEY en el código de este archivo.", "error");
+  } else if (!window.supabase || !window.supabase.createClient) {
+    message(authStatus, "No se pudo cargar la librería de Supabase. Comprueba tu conexión a Internet.", "error");
+  } else {
+    supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
+    supabase.auth.getSession().then(({data, error}) => {
+      if (error) message(authStatus, error.message, "error");
+      setLoggedIn(data?.session?.user || null);
+    });
+    supabase.auth.onAuthStateChange((_event, session) => setLoggedIn(session?.user || null));
+  }
+
+  loginForm.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    if (!supabase) return message(authStatus, "Primero configura la URL y la clave pública.", "error");
+    const email = $("email").value.trim();
+    const password = $("password").value;
+    const {data, error} = await supabase.auth.signInWithPassword({email, password});
+    if (error) return message(authStatus, error.message, "error");
+    setLoggedIn(data.user);
+  });
+
+  $("logoutBtn").addEventListener("click", async () => {
+    if (!supabase) return;
+    const {error} = await supabase.auth.signOut();
+    if (error) message(authStatus, error.message, "error");
+    else setLoggedIn(null);
+  });
+
+  uploadForm.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    if (!supabase || !currentUser) return message(uploadStatus, "Inicia sesión primero.", "error");
+    const file = $("fileInput").files[0];
+    if (!file) return message(uploadStatus, "Selecciona un archivo.", "error");
+    // UUID en el nombre evita colisiones y problemas con nombres repetidos.
+    const safeName = file.name.replace(/[^\w.\- ()áéíóúÁÉÍÓÚñÑ]/g, "_");
+    const objectPath = Date.now() + "-" + crypto.randomUUID() + "-" + safeName;
+    $("uploadBtn").disabled = true;
+    message(uploadStatus, "Subiendo archivo…");
+    const {error} = await supabase.storage.from(BUCKET).upload(objectPath, file, {cacheControl:"3600", upsert:false});
+    $("uploadBtn").disabled = false;
+    if (error) return message(uploadStatus, "No se pudo subir: " + error.message, "error");
+    uploadForm.reset();
+    message(uploadStatus, "Archivo subido correctamente.", "success");
+    await loadFiles();
+  });
+
+  $("refreshBtn").addEventListener("click", loadFiles);
+
+  async function loadFiles() {
+    if (!supabase || !currentUser) return;
+    message(fileStatus, "Cargando archivos…");
+    fileList.replaceChildren();
+    const {data, error} = await supabase.storage.from(BUCKET).list("", {
+      limit: 100, offset: 0, sortBy: {column:"created_at", order:"desc"}
+    });
+    if (error) return message(fileStatus, "No se pudieron listar los archivos: " + error.message, "error");
+    const files = (data || []).filter(item => item.name && item.id);
+    if (!files.length) return message(fileStatus, "Todavía no hay archivos compartidos.");
+    message(fileStatus, files.length + " archivo(s) encontrado(s).", "success");
+    for (const file of files) {
+      const row = document.createElement("div"); row.className = "file-row";
+      const icon = document.createElement("div"); icon.className = "file-icon"; icon.textContent = "📄";
+      const info = document.createElement("div"); info.className = "file-info";
+      const name = document.createElement("strong"); name.textContent = file.name;
+      const meta = document.createElement("small"); meta.textContent = file.updated_at ? new Date(file.updated_at).toLocaleString() : "Archivo compartido";
+      info.append(name, meta);
+      const actions = document.createElement("div"); actions.className = "file-actions";
+      const download = document.createElement("button"); download.className = "cloud-btn secondary"; download.textContent = "Descargar";
+      download.addEventListener("click", async () => {
+        const {data, error} = await supabase.storage.from(BUCKET).createSignedUrl(file.name, 60);
+        if (error) return message(fileStatus, "Error al preparar descarga: " + error.message, "error");
+        window.open(data.signedUrl, "_blank", "noopener");
+      });
+      const remove = document.createElement("button"); remove.className = "cloud-btn danger"; remove.textContent = "Eliminar";
+      remove.addEventListener("click", async () => {
+        if (!confirm('¿Eliminar "' + file.name + '"? Esta acción no se puede deshacer.')) return;
+        const {error} = await supabase.storage.from(BUCKET).remove([file.name]);
+        if (error) return message(fileStatus, "No se pudo eliminar: " + error.message, "error");
+        await loadFiles();
+      });
+      actions.append(download, remove); row.append(icon, info, actions); fileList.append(row);
+    }
+  }
+})();
+</script>
+</body>
+</html>
