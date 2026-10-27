@@ -1,17 +1,26 @@
-ACTUALIZACIÓN SEGURA — PROYECTO SISTEMAS OPERATIVOS
+PROYECTO DE SISTEMAS OPERATIVOS — CACHYOS
+ZIP COMPLETO CORREGIDO
 
-Este ZIP contiene dos archivos HTML actualizados:
-- web.html: cambia el botón "Abrir servidor local" por "Abrir Nube Privada" y apunta a http://192.168.100.7:8001/login.
-- bd.html: elimina el botón "Ver caso del restaurante".
+Contenido:
+- index.html
+- styles.css
+- web.html
+- archivos.html (se conserva la integración existente con Supabase)
+- bd.html
+- integrantes.html
+
+Correcciones:
+1. En web.html, el botón abre Nube Privada en http://192.168.100.7:8001/login.
+2. En bd.html, se eliminó el botón “Ver caso del restaurante” y se quitaron referencias a la página inexistente caso-restaurante.html.
 
 IMPORTANTE:
-Este paquete NO incluye el resto del sitio porque archivos.html contiene la configuración existente del portal de archivos/Supabase y no debe reemplazarse por una reconstrucción que pudiera perder esa integración.
+- GitHub Pages publica la web estática, pero no ejecuta la aplicación FastAPI.
+- Nube Privada en 192.168.100.7:8001 solo se puede abrir desde dispositivos conectados a la misma red Wi-Fi que la laptop.
+- Para que el enlace funcione, la laptop debe estar encendida y Uvicorn debe estar ejecutándose en el puerto 8001.
+- Se conserva archivos.html para no borrar la integración de Supabase existente.
 
-Cómo aplicarlo:
-1. Descarga y descomprime este ZIP.
-2. En GitHub abre el repositorio proyecto_sistemasoperativos.
-3. Reemplaza únicamente web.html y bd.html por los archivos de este paquete.
-4. Haz Commit changes para ambos archivos.
-5. Espera a que GitHub Pages publique los cambios y recarga la web.
-
-El enlace http://192.168.100.7:8001/login funciona solo desde la misma red local, si la IP sigue siendo 192.168.100.7 y Nube Privada está ejecutándose. No funciona desde otras redes ni datos móviles.
+Cómo actualizar GitHub:
+1. Descomprime este ZIP.
+2. En tu repositorio, reemplaza los archivos por los de esta carpeta (puedes subir los archivos conservando los mismos nombres).
+3. Confirma con Commit changes.
+4. Espera a que GitHub Pages actualice el sitio y recarga con Ctrl+F5.
