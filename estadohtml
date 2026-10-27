@@ -1,0 +1,96 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Centro de Servicios Linux</title>
+<style>
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  font-family: system-ui, sans-serif;
+  background: #0b1120;
+  color: #e5edf8;
+}
+header {
+  padding: 30px 7%;
+  background: #111c30;
+  border-bottom: 1px solid #263751;
+}
+header p, .intro p { color: #9aacc5; }
+main { max-width: 1100px; margin: 35px auto; padding: 0 20px; }
+.intro { margin-bottom: 28px; }
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  gap: 18px;
+}
+.card, .info {
+  background: #121e31;
+  border: 1px solid #2a3b56;
+  border-radius: 16px;
+  padding: 23px;
+}
+.icon { font-size: 30px; }
+.card h2 { font-size: 20px; }
+.card p { color: #b0bfd3; line-height: 1.6; }
+.status {
+  display: inline-block;
+  background: #12382f;
+  color: #6ee7b7;
+  border: 1px solid #17634f;
+  border-radius: 30px;
+  padding: 6px 10px;
+  font-size: 12px;
+  font-weight: 700;
+}
+.info { margin-top: 24px; }
+code { color: #7dd3fc; overflow-wrap: anywhere; }
+footer { padding: 25px; text-align: center; color: #8ea0b8; font-size: 13px; }
+</style>
+</head>
+<body>
+<header>
+  <h1>🖥️ Centro de Servicios Linux</h1>
+  <p>Panel de servicios · Proyecto de Sistemas Operativos</p>
+</header>
+<main>
+  <section class="intro">
+    <h2>Arquitectura del proyecto</h2>
+    <p>Servicios configurados y probados en el servidor local CachyOS.</p>
+  </section>
+  <section class="grid">
+    <article class="card">
+      <div class="icon">🌐</div>
+      <h2>Servidor web</h2>
+      <h3>Apache HTTP Server</h3>
+      <p>Entrega páginas web a los navegadores de los equipos de la red.</p>
+      <span class="status">Servicio probado</span>
+    </article>
+    <article class="card">
+      <div class="icon">📁</div>
+      <h2>Servidor de archivos</h2>
+      <h3>Samba (SMB)</h3>
+      <p>Comparte archivos entre Linux y dispositivos autorizados.</p>
+      <span class="status">Acceso local probado</span>
+    </article>
+    <article class="card">
+      <div class="icon">🛡️</div>
+      <h2>Copias de seguridad</h2>
+      <h3>Restic</h3>
+      <p>Crea copias de los archivos compartidos y permite restaurarlos.</p>
+      <span class="status">Respaldo y restauración probados</span>
+    </article>
+  </section>
+  <section class="info">
+    <h2>Información del servidor</h2>
+    <p><strong>Sistema operativo:</strong> CachyOS Linux</p>
+    <p><strong>Carpeta compartida:</strong> <code>/srv/samba/compartido</code></p>
+    <p><strong>Repositorio de respaldo local:</strong> <code>~/respaldos/restic</code></p>
+    <p><strong>Disponibilidad:</strong> los servicios locales requieren que el equipo esté encendido.</p>
+  </section>
+</main>
+<footer>Proyecto académico de Sistemas Operativos</footer>
+</body>
+</html>
