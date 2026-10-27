@@ -1,21 +1,17 @@
-PROYECTO CACHYOS - WEB ACTUALIZADA
+ACTUALIZACIÓN SEGURA — PROYECTO SISTEMAS OPERATIVOS
 
-Cambios:
-- Se quitó el enlace y el archivo "caso-restaurante.html".
-- Se conservó el diseño general oscuro y las páginas del proyecto.
-- Se actualizó archivos.html con una interfaz para iniciar sesión, subir, listar, descargar y eliminar archivos mediante Supabase Storage.
-- La integración aún requiere pegar la Project URL y la clave pública de Supabase en archivos.html.
+Este ZIP contiene dos archivos HTML actualizados:
+- web.html: cambia el botón "Abrir servidor local" por "Abrir Nube Privada" y apunta a http://192.168.100.7:8001/login.
+- bd.html: elimina el botón "Ver caso del restaurante".
 
-Antes de usar:
-1. Abre archivos.html en GitHub y pulsa Edit.
-2. Busca las constantes SUPABASE_URL y SUPABASE_PUBLISHABLE_KEY.
-3. Sustituye PEGA_AQUI_TU_PROJECT_URL por la URL del proyecto.
-4. Sustituye PEGA_AQUI_TU_SB_PUBLISHABLE_KEY por la clave sb_publishable_...
-5. Guarda con Commit changes y espera a que GitHub Pages publique.
+IMPORTANTE:
+Este paquete NO incluye el resto del sitio porque archivos.html contiene la configuración existente del portal de archivos/Supabase y no debe reemplazarse por una reconstrucción que pudiera perder esa integración.
 
-Seguridad:
-- Nunca coloques sb_secret_... ni service_role en HTML.
-- Bucket debe permanecer privado.
-- Las políticas SELECT/INSERT/DELETE deben aplicarse a authenticated y restringir bucket_id = 'archivos-compartidos'.
-- Esta interfaz inicia sesión con correo y contraseña (Supabase Auth), no con un nombre de usuario aislado.
-- El código permite que usuarios autenticados eliminen cualquier archivo del bucket, si así lo permiten las políticas. Usa con cuidado.
+Cómo aplicarlo:
+1. Descarga y descomprime este ZIP.
+2. En GitHub abre el repositorio proyecto_sistemasoperativos.
+3. Reemplaza únicamente web.html y bd.html por los archivos de este paquete.
+4. Haz Commit changes para ambos archivos.
+5. Espera a que GitHub Pages publique los cambios y recarga la web.
+
+El enlace http://192.168.100.7:8001/login funciona solo desde la misma red local, si la IP sigue siendo 192.168.100.7 y Nube Privada está ejecutándose. No funciona desde otras redes ni datos móviles.
